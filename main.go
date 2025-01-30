@@ -2,12 +2,12 @@ package main
 
 import (
 	"fmt"
-	. "go_learning/string"
+	. "go_learning/2.5-strings"
 )
 
 func main() {
 	s := "gopher"
 	fmt.Printf("Hello and welcome, %s!\n", s)
 
-	CheckString()
+	Check6String()
 }
