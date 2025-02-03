@@ -13,5 +13,5 @@ func main() {
 	s := "gopher"
 	fmt.Printf("Hello and welcome, %s!\n", s)
 
-	DoTypes1()
+	DoTypes3()
 }
