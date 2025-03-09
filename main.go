@@ -13,5 +13,5 @@ import (
 
 func main() {
 
-	DoFiles22()
+	DoFiles3()
 }
