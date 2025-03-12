@@ -9,7 +9,7 @@ import (
 
 func DoFiles0() {
 	dataForFile := []byte("Тестовая строка, предназначенная для записи в файл")
-	file_name := "./files/test_file.txt"
+	file_name := "./files/3.5.0/test_file.txt"
 
 	// Создаем новый файл и записываем в него данные dataForFile
 	if err := os.WriteFile(file_name, dataForFile, 0600); err != nil {

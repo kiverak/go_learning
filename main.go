@@ -8,10 +8,11 @@ import (
 	//. "go_learning/3.2-types"
 	//. "go_learning/3.3-anonymous-functions"
 	//. "go_learning/3.4-interfaces"
-	. "go_learning/3.5-files"
+	//. "go_learning/3.5-files"
+	. "go_learning/3.6-json"
 )
 
 func main() {
 
-	DoFiles3()
+	DoJson2()
 }

@@ -2,8 +2,10 @@ package files
 
 import (
 	"bufio"
+	"encoding/csv"
 	"fmt"
 	"io"
+	"net/http"
 	"os"
 	"strings"
 )
@@ -33,6 +35,23 @@ func DoFiles3() {
 		if line == "0" {
 			fmt.Println(counter)
 			break
+		}
+	}
+}
+
+func DoFiles31() {
+	urlDownload := "https://raw.githubusercontent.com/semyon-dev/stepik-go/master/work_with_files/task_sep_1/task.data"
+	resp, err := http.Get(urlDownload)
+	if err != nil {
+		return
+	}
+	defer resp.Body.Close()
+	r := csv.NewReader(resp.Body)
+	r.Comma = ';'
+	lines, _ := r.ReadAll()
+	for index, val := range lines[0] {
+		if val == "0" {
+			fmt.Println("Result:", index+1)
 		}
 	}
 }
