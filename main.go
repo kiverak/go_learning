@@ -15,4 +15,6 @@ import (
 func main() {
 
 	DoJson2()
+	DoJson3()
+	DoJson4()
 }
