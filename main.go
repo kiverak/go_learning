@@ -9,12 +9,11 @@ import (
 	//. "go_learning/3.3-anonymous-functions"
 	//. "go_learning/3.4-interfaces"
 	//. "go_learning/3.5-files"
-	. "go_learning/3.6-json"
+	//. "go_learning/3.6-json"
+	. "go_learning/3.7-time"
 )
 
 func main() {
 
-	DoJson2()
-	DoJson3()
-	DoJson4()
+	DoTime02()
 }
