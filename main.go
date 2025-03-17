@@ -15,5 +15,5 @@ import (
 
 func main() {
 
-	DoTime02()
+	DoTime4()
 }
