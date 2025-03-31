@@ -10,10 +10,11 @@ import (
 	//. "go_learning/3.4-interfaces"
 	//. "go_learning/3.5-files"
 	//. "go_learning/3.6-json"
-	. "go_learning/3.7-time"
+	//. "go_learning/3.7-time"
+	. "go_learning/3.8-goroutines"
 )
 
 func main() {
 
-	DoTime4()
+	DoGoroutines3()
 }
