@@ -16,5 +16,5 @@ import (
 
 func main() {
 
-	DoGoroutines5()
+	DoGoroutines8()
 }
