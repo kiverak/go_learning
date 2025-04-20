@@ -67,15 +67,19 @@ func merge2Channels(fn func(int) int, in1 <-chan int, in2 <-chan int, out chan<-
 
 		wg.Add(n * 2)
 
-		for i := 0; i < n; i++ {
-			x1 := <-in1
-			calcAndStore(x1, fn, &mapa, i, &wg)
-		}
+		go func() {
+			for i := 0; i < n; i++ {
+				x1 := <-in1
+				calcAndStore(x1, fn, &mapa, i, &wg)
+			}
+		}()
 
-		for i := 0; i < n; i++ {
-			x2 := <-in2
-			calcAndStore(x2, fn, &mapa, i, &wg)
-		}
+		go func() {
+			for i := 0; i < n; i++ {
+				x2 := <-in2
+				calcAndStore(x2, fn, &mapa, i, &wg)
+			}
+		}()
 
 		wg.Wait()
 
