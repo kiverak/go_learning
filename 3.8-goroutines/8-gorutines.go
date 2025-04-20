@@ -59,7 +59,6 @@ func DoGoroutines8() {
 
 func merge2Channels(fn func(int) int, in1 <-chan int, in2 <-chan int, out chan<- int, n int) {
 	go func() {
-		defer close(out)
 		var wg sync.WaitGroup
 		mapa := sync.Map{}
 		for i := 0; i < n; i++ {
@@ -77,14 +76,10 @@ func merge2Channels(fn func(int) int, in1 <-chan int, in2 <-chan int, out chan<-
 			x2 := <-in2
 			calcAndStore(x2, fn, &mapa, i, &wg)
 		}
+
 		wg.Wait()
 
-		for i := 0; i < n; i++ {
-			res, _ := mapa.Load(i)
-			if val, ok := res.(int); ok {
-				out <- val
-			}
-		}
+		sendToOut(&mapa, out, n)
 	}()
 }
 
@@ -95,5 +90,17 @@ func calcAndStore(x int, fn func(int) int, mapa *sync.Map, i int, wg *sync.WaitG
 		res, _ := mapa.Load(i)
 		val, _ := res.(int)
 		mapa.Store(i, val+fnRes)
+	}()
+}
+
+func sendToOut(s *sync.Map, out chan<- int, n int) {
+	go func() {
+		defer close(out)
+		for i := 0; i < n; i++ {
+			res, _ := s.Load(i)
+			if val, ok := res.(int); ok {
+				out <- val
+			}
+		}
 	}()
 }
