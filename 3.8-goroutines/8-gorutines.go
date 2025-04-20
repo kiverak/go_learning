@@ -12,72 +12,88 @@ const Num = 3
 func DoGoroutines8() {
 	fn := func(x int) int {
 		time.Sleep(time.Duration(rand.Int31n(Num)) * time.Second)
-		return x * 2
+		return x * x
 	}
+	fmt.Println("\nСоздаю каналы, начитаю работу.")
 	in1 := make(chan int, Num)
 	in2 := make(chan int, Num)
 	out := make(chan int, Num)
 
 	start := time.Now()
-	merge2Channels(fn, in1, in2, out, Num+1)
-	for i := 0; i < Num+1; i++ {
+	merge2Channels(fn, in1, in2, out, Num)
+	for i := 0; i < Num; i++ {
 		in1 <- i
-		in2 <- i
+		in2 <- (i + Num)
+		fmt.Printf("%v) В канал 1 послано: %v, В канал 2 послано: %v.\n", i+1, i, (i + Num))
 	}
+	fmt.Print("Функция fn с разной паузой возводит в квадрат значения из каналов.\n",
+		"Итоговый результат fn(x1) + fn(x2)\n",
+		"Барабанная дробь...\n")
 
-	orderFail := false
-	EvenFail := false
-	for i, prev := 0, 0; i < Num; i++ {
+	calcFail := false
+	timeFail := false
+	pass := "OK"
+	for i := 0; i < Num; i++ {
 		c := <-out
-		if c%2 != 0 {
-			EvenFail = true
+		result := i*i + (i+Num)*(i+Num)
+		if c != result {
+			calcFail = true
+			pass = "Failed."
 		}
-		if prev >= c && i != 0 {
-			orderFail = true
-		}
-		prev = c
-		fmt.Println(c)
+		fmt.Printf("%v) Результат: %v. Правильный %v. -> %v\n", i+1, c, result, pass)
 	}
-	if orderFail {
-		fmt.Println("порядок нарушен")
-	}
-	if EvenFail {
-		fmt.Println("Есть не четные")
+	if calcFail {
+		fmt.Println("Failed. Результат выполнения не соответствует ожидаемому.")
 	}
 	duration := time.Since(start)
 	if duration.Seconds() > Num {
-		fmt.Println("Время превышено")
+		timeFail = true
+		fmt.Println("Failed. Время превышено.")
 	}
-	fmt.Println("Время выполнения: ", duration)
+	if !calcFail && !timeFail {
+		fmt.Println("Passed. OK. Ты сделал это!\nВремя работы: ", duration)
+	} else {
+		fmt.Println("Пока неверно. Упорства вам не занимать, попробуете еще раз?\nВремя выполнения: ", duration)
+	}
 }
 
 func merge2Channels(fn func(int) int, in1 <-chan int, in2 <-chan int, out chan<- int, n int) {
-	map1, map2 := make(map[int]int, n), make(map[int]int, n)
-	var wg sync.WaitGroup
-	wg.Add(2 * n)
-	for i := 0; i < n; i++ {
-		go func() {
-			map1[i] = <-in1
-			map2[i] = <-in2
-		}()
-	}
-
-	for i := 0; i < n; i++ {
-		go calc(map1, fn, i, &wg)
-		go calc(map2, fn, i, &wg)
-	}
-	wg.Wait()
-
 	go func() {
+		defer close(out)
+		var wg sync.WaitGroup
+		mapa := sync.Map{}
 		for i := 0; i < n; i++ {
-			out <- map1[i] + map2[i]
+			mapa.Store(i, 0)
+		}
+
+		wg.Add(n * 2)
+
+		for i := 0; i < n; i++ {
+			x1 := <-in1
+			calcAndStore(x1, fn, &mapa, i, &wg)
+		}
+
+		for i := 0; i < n; i++ {
+			x2 := <-in2
+			calcAndStore(x2, fn, &mapa, i, &wg)
+		}
+		wg.Wait()
+
+		for i := 0; i < n; i++ {
+			res, _ := mapa.Load(i)
+			if val, ok := res.(int); ok {
+				out <- val
+			}
 		}
 	}()
 }
 
-func calc(map1 map[int]int, fn func(int) int, i int, wg *sync.WaitGroup) {
-	go func(i int) {
+func calcAndStore(x int, fn func(int) int, mapa *sync.Map, i int, wg *sync.WaitGroup) {
+	go func() {
 		defer wg.Done()
-		map1[i] = fn(map1[i])
-	}(i)
+		fnRes := fn(x)
+		res, _ := mapa.Load(i)
+		val, _ := res.(int)
+		mapa.Store(i, val+fnRes)
+	}()
 }
